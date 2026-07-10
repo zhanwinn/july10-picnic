@@ -741,12 +741,12 @@ const LS = {
 /* ---- Cloud = shared across everyone viewing this page, backed by Firebase. ----
    Fill in YOUR_* values below with your Firebase project's config (see README). */
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDpOpER2WXpMKs8ok1K8VAe7fxH4C2Dz1o",
+  authDomain: "picnic-dashboard-20373.firebaseapp.com",
+  projectId: "picnic-dashboard-20373",
+  storageBucket: "picnic-dashboard-20373.firebasestorage.app",
+  messagingSenderId: "41818972632",
+  appId: "1:41818972632:web:00dd54af547861486d12ad"
 };
 
 const syncStatusEl = document.getElementById("syncStatus");
@@ -757,8 +757,12 @@ let firebaseReady = false;
 try{
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
+  db.settings({ experimentalForceLongPolling: true, useFetchStreams: false });
   docRef = db.collection("picnic").doc("shared");
-  const snap = await docRef.get();
+  const snap = await Promise.race([
+    docRef.get(),
+    new Promise((_, reject) => setTimeout(()=>reject(new Error("Firestore request timed out")), 4000))
+  ]);
   cloud = snap.exists ? snap.data() : {};
   firebaseReady = true;
   syncStatusEl.textContent = "☁️ Live";
