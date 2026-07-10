@@ -759,16 +759,13 @@ try{
   const db = firebase.firestore();
   db.settings({ experimentalForceLongPolling: true, useFetchStreams: false, merge: true });
   docRef = db.collection("picnic").doc("shared");
-  const snap = await Promise.race([
-    docRef.get(),
-    new Promise((_, reject) => setTimeout(()=>reject(new Error("Firestore request timed out")), 4000))
-  ]);
-  cloud = snap.exists ? snap.data() : {};
-  firebaseReady = true;
-  syncStatusEl.textContent = "☁️ Live";
-  syncStatusEl.title = "Connected — everyone with this link sees the same data";
+  firebaseReady = true; // SDK is configured — writes and the live listener can proceed
+  // Note: we deliberately do NOT await a one-time get() here. The onSnapshot
+  // listener registered near the end of this script delivers the current
+  // server data (and every future update) without blocking page render —
+  // that's what flips the badge from "connecting" to "Live" below.
 }catch(e){
-  console.warn("Firebase unavailable, running in local-only (per-browser) mode.", e);
+  console.warn("Firebase failed to initialize.", e);
   syncStatusEl.textContent = "⚠️ Offline mode";
   syncStatusEl.title = "Could not reach the shared database — changes will only be saved on this device";
 }
@@ -777,7 +774,7 @@ const Cloud = {
   get(key, fallback){ return cloud[key] !== undefined ? cloud[key] : fallback; },
   set(key, val){
     cloud[key] = val;
-    if(!firebaseReady || !docRef) return; // fall back silently to in-memory-only if offline
+    if(!firebaseReady || !docRef) return; // fall back silently to in-memory-only if never connected
     docRef.set({[key]: val}, {merge:true}).catch(e=>console.warn("Cloud save failed for", key, e));
   }
 };
@@ -1432,7 +1429,15 @@ document.getElementById("csvBtn").addEventListener("click", ()=>{
 // hasPendingWrites filters out the echo of our own writes so we don't fight local typing.
 if(firebaseReady && docRef){
   docRef.onSnapshot({includeMetadataChanges:true}, (snap)=>{
-    if(snap.metadata.hasPendingWrites || !snap.exists) return;
+    if(snap.metadata.hasPendingWrites) return;
+    if(!snap.exists){
+      // Doc doesn't exist yet (nobody has saved anything). That's fine — we're still connected.
+      syncStatusEl.textContent = "☁️ Live";
+      syncStatusEl.title = "Connected — everyone with this link sees the same data";
+      return;
+    }
+    syncStatusEl.textContent = "☁️ Live";
+    syncStatusEl.title = "Connected — everyone with this link sees the same data";
     cloud = snap.data();
 
     eventDateStr = Cloud.get("picnic_event_date", eventDateStr);
