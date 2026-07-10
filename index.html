@@ -757,7 +757,7 @@ let firebaseReady = false;
 try{
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
-  db.settings({ experimentalForceLongPolling: true, useFetchStreams: false });
+  db.settings({ experimentalForceLongPolling: true, useFetchStreams: false, merge: true });
   docRef = db.collection("picnic").doc("shared");
   const snap = await Promise.race([
     docRef.get(),
