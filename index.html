@@ -757,7 +757,6 @@ let firebaseReady = false;
 try{
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
-  db.settings({ experimentalForceLongPolling: true, useFetchStreams: false, merge: true });
   docRef = db.collection("picnic").doc("shared");
   firebaseReady = true; // SDK is configured — writes and the live listener can proceed
   // Note: we deliberately do NOT await a one-time get() here. The onSnapshot
