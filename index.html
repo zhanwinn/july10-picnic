@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scarborough Bluffs Picnic — Planning Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+:root{
+  --green-deep:#3F6B4C;
+  --green:#5C8A62;
+  --green-soft:#DCE9DA;
+  --blue-lake:#3A7CA5;
+  --blue-soft:#DCEAF2;
+  --sun:#E3A730;
+  --melon:#E2624F;
+  --cream:#FAF8F2;
+  --paper:#FFFFFF;
+  --ink:#243428;
+  --ink-soft:#5A6B5D;
+  --line:rgba(63,107,76,0.16);
+  --shadow:0 8px 30px rgba(36,52,40,0.08);
+  --shadow-lg:0 16px 48px rgba(36,52,40,0.14);
+  --radius:18px;
+  --radius-sm:12px;
+  --font-display:'Fraunces', serif;
+  --font-body:'Work Sans', sans-serif;
+  --font-mono:'JetBrains Mono', monospace;
+  --transition: 220ms cubic-bezier(.4,0,.2,1);
+}
+
+[data-theme="dark"]{
+  --green-deep:#8CC79A;
+  --green:#79B287;
+  --green-soft:#1E2E24;
+  --blue-lake:#7BB6DA;
+  --blue-soft:#182734;
+  --sun:#F0C060;
+  --melon:#F0806B;
+  --cream:#131A15;
+  --paper:#1B241D;
+  --ink:#EFF3EE;
+  --ink-soft:#A6B5A9;
+  --line:rgba(140,199,154,0.16);
+  --shadow:0 8px 30px rgba(0,0,0,0.35);
+  --shadow-lg:0 16px 48px rgba(0,0,0,0.5);
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+
+html{scroll-behavior:smooth;}
+
+body{
+  font-family:var(--font-body);
+  color:var(--ink);
+  background:var(--cream);
+  min-height:100vh;
+  transition:background-color var(--transition), color var(--transition);
+  padding-bottom:80px;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important;}
+}
+
+/* ---------- Layout helpers ---------- */
+.wrap{max-width:1180px; margin:0 auto; padding:0 24px;}
+.card{
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  backdrop-filter: blur(10px);
+}
+.section{padding:64px 0 8px;}
+.section-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:24px; flex-wrap:wrap;}
+.section-eyebrow{font-family:var(--font-mono); font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--green-deep); opacity:.8;}
+.section-title{font-family:var(--font-display); font-weight:600; font-size:clamp(24px,3vw,32px); margin-top:4px;}
+.section-sub{color:var(--ink-soft); font-size:14px; max-width:520px;}
+
+/* ---------- Nav ---------- */
+header.nav{
+  position:sticky; top:0; z-index:100;
+  background:color-mix(in srgb, var(--cream) 82%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.nav-inner{max-width:1180px; margin:0 auto; padding:14px 24px; display:flex; align-items:center; gap:18px;}
+.brand{font-family:var(--font-display); font-weight:700; font-size:19px; white-space:nowrap; display:flex; align-items:center; gap:8px;}
+.nav-links{display:flex; gap:4px; overflow-x:auto; flex:1; scrollbar-width:none;}
+.nav-links::-webkit-scrollbar{display:none;}
+.nav-links a{
+  font-size:13px; font-weight:500; color:var(--ink-soft); text-decoration:none;
+  padding:8px 12px; border-radius:999px; white-space:nowrap; transition:var(--transition);
+}
+.nav-links a:hover, .nav-links a:focus-visible{background:var(--green-soft); color:var(--green-deep);}
+.icon-btn{
+  border:1px solid var(--line); background:var(--paper); width:38px; height:38px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; flex-shrink:0;
+  transition:var(--transition);
+}
+.icon-btn:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+
+/* ---------- Hero ---------- */
+.hero{padding:56px 0 40px;}
+.hero-grid{display:grid; grid-template-columns:1.3fr 1fr; gap:24px;}
+@media (max-width:860px){.hero-grid{grid-template-columns:1fr;}}
+.hero-main{
+  padding:40px; position:relative; overflow:hidden;
+}
+.hero-eyebrow{font-family:var(--font-mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--green-deep);}
+.hero-title{font-family:var(--font-display); font-size:clamp(36px,5.5vw,58px); font-weight:700; line-height:1.02; margin:10px 0 6px; color:var(--green-deep);}
+.hero-date{font-family:var(--font-mono); font-size:15px; color:var(--ink-soft); display:flex; gap:18px; flex-wrap:wrap; margin-top:14px;}
+.hero-date span b{color:var(--ink); font-weight:600;}
+.countdown{display:flex; gap:10px; margin-top:26px; flex-wrap:wrap;}
+.count-box{
+  background:var(--green-soft); border-radius:var(--radius-sm); padding:12px 16px; min-width:74px; text-align:center;
+}
+.count-num{font-family:var(--font-display); font-size:28px; font-weight:700; color:var(--green-deep); line-height:1;}
+.count-label{font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); margin-top:4px;}
+
+.hero-side{display:flex; flex-direction:column; gap:16px;}
+.weather-card{padding:22px; flex:1; display:flex; flex-direction:column; justify-content:space-between;}
+.weather-top{display:flex; justify-content:space-between; align-items:flex-start;}
+.weather-temp{font-family:var(--font-display); font-size:44px; font-weight:600;}
+.weather-icon{font-size:40px;}
+.weather-desc{color:var(--ink-soft); font-size:13px; margin-top:4px;}
+.weather-note{font-size:11px; color:var(--ink-soft); font-family:var(--font-mono); margin-top:14px; opacity:.7;}
+
+.stat-mini-row{display:grid; grid-template-columns:repeat(2,1fr); gap:12px;}
+.stat-mini{padding:16px; text-align:center;}
+.stat-mini .n{font-family:var(--font-display); font-size:26px; font-weight:700; color:var(--blue-lake);}
+.stat-mini .l{font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.06em;}
+
+/* ---------- Search ---------- */
+.global-search{position:relative; margin:0 auto 0; max-width:480px; flex-shrink:0;}
+.global-search input{
+  width:100%; padding:9px 14px 9px 34px; border-radius:999px; border:1px solid var(--line);
+  background:var(--paper); font-family:var(--font-body); font-size:13px; color:var(--ink);
+}
+.global-search input:focus-visible{outline:2px solid var(--blue-lake); outline-offset:1px;}
+.global-search::before{content:"🔍"; position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:12px; opacity:.6;}
+
+/* ---------- Attendees ---------- */
+.attendee-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px;}
+.attendee-card{
+  padding:18px; cursor:pointer; transition:var(--transition); text-align:center; position:relative;
+}
+.attendee-card:hover{transform:translateY(-4px); box-shadow:var(--shadow-lg);}
+.attendee-card.has-role::after{content:"★"; position:absolute; top:10px; right:12px; color:var(--sun); font-size:13px;}
+.avatar{
+  width:52px; height:52px; border-radius:50%; margin:0 auto 10px; display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-weight:600; font-size:18px; color:#fff;
+  background:linear-gradient(135deg,var(--green),var(--blue-lake));
+}
+.attendee-name{font-weight:600; font-size:14px;}
+.attendee-tag{font-size:11px; color:var(--ink-soft); margin-top:2px;}
+.attendee-detail{
+  max-height:0; overflow:hidden; transition:max-height var(--transition); font-size:12px; color:var(--ink-soft); text-align:left;
+}
+.attendee-card.open .attendee-detail{max-height:200px; margin-top:12px; padding-top:12px; border-top:1px dashed var(--line);}
+.attendee-detail ul{padding-left:16px; margin-top:4px;}
+.hidden{display:none !important;}
+
+/* ---------- Transportation ---------- */
+.chip{
+  background:var(--blue-soft); color:var(--blue-lake); font-size:13px; font-weight:600; padding:8px 14px;
+  border-radius:999px; display:flex; align-items:center; gap:6px;
+}
+.cars-container{display:flex; flex-wrap:wrap; gap:16px; align-items:flex-start;}
+.car-card{
+  background:var(--paper); border:2px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:16px; flex:1 1 180px; max-width:280px;
+  transition:border-color var(--transition), background var(--transition);
+}
+.car-card.drag-over{border-color:var(--blue-lake); background:var(--blue-soft);}
+.car-header{display:flex; align-items:center; gap:8px; margin-bottom:12px;}
+.car-label-input{
+  font-family:var(--font-display); font-weight:600; font-size:15px; border:none; background:transparent;
+  color:var(--ink); flex:1; min-width:0; padding:2px 4px; border-radius:4px;
+}
+.car-label-input:focus{outline:1px solid var(--blue-lake); background:var(--blue-soft);}
+.remove-car-btn{
+  background:none; border:none; cursor:pointer; color:var(--ink-soft); font-size:14px;
+  width:26px; height:26px; display:flex; align-items:center; justify-content:center;
+  border-radius:50%; transition:var(--transition); flex-shrink:0;
+}
+.remove-car-btn:hover{background:color-mix(in srgb, var(--melon) 18%, transparent); color:var(--melon);}
+.car-passengers{display:flex; flex-wrap:wrap; gap:6px; min-height:52px; padding:4px 0; align-items:flex-start; align-content:flex-start;}
+.car-passengers.empty::after{content:"Drop here"; color:var(--ink-soft); font-size:12px; font-style:italic;}
+.person-chip{
+  background:var(--blue-soft); color:var(--blue-lake); padding:5px 11px; border-radius:999px;
+  font-size:13px; font-weight:500; cursor:grab; user-select:none; transition:opacity var(--transition);
+}
+.person-chip:active{cursor:grabbing;}
+.person-chip.dragging{opacity:.25;}
+.add-car-card{
+  min-width:140px; max-width:280px; flex:1 1 140px; border:2px dashed var(--line); border-radius:var(--radius);
+  padding:32px 16px; display:flex; align-items:center; justify-content:center; cursor:pointer;
+  color:var(--ink-soft); font-size:13px; font-weight:500; gap:8px; background:none;
+  transition:var(--transition); font-family:var(--font-body);
+}
+.add-car-card:hover{border-color:var(--green); color:var(--green); background:color-mix(in srgb,var(--green) 5%,transparent);}
+
+/* ---------- Grouped person cards (food/drinks/supplies) ---------- */
+.person-group-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px;}
+.person-group{padding:20px;}
+.person-group-head{display:flex; align-items:center; gap:10px; margin-bottom:12px;}
+.person-group-head .avatar{width:36px; height:36px; font-size:13px; margin:0;}
+.person-group-head .name{font-weight:600; font-size:15px;}
+.item-list{list-style:none; display:flex; flex-direction:column; gap:0;}
+.item-list li{
+  display:flex; align-items:center; gap:8px; font-size:13.5px; color:var(--ink-soft); padding:6px 0;
+  border-bottom:1px solid var(--line);
+}
+.item-list li:last-child{border-bottom:none;}
+.item-list li input[type=checkbox]{width:16px; height:16px; accent-color:var(--green); cursor:pointer; flex-shrink:0;}
+.item-list li label{cursor:pointer; flex:1;}
+.item-list li.checked label{text-decoration:line-through; opacity:.5;}
+
+/* ---------- Checklist ---------- */
+.check-item{display:flex; align-items:center; gap:10px; padding:9px 4px; border-bottom:1px solid var(--line); font-size:14px;}
+.check-item:last-child{border-bottom:none;}
+.check-item input[type=checkbox]{width:18px; height:18px; accent-color:var(--green); cursor:pointer;}
+.check-item.checked label{text-decoration:line-through; color:var(--ink-soft); opacity:.6;}
+.check-item label{cursor:pointer; flex:1;}
+
+/* ---------- Allergy ---------- */
+.allergy-card{
+  padding:22px; border:1px solid color-mix(in srgb, var(--melon) 40%, var(--line));
+  background:color-mix(in srgb, var(--melon) 7%, var(--paper));
+  display:flex; gap:16px; align-items:flex-start;
+}
+.allergy-icon{font-size:28px;}
+.allergy-warning{
+  margin-top:10px; font-weight:600; color:var(--melon); font-size:13.5px;
+  background:color-mix(in srgb, var(--melon) 12%, transparent); padding:8px 12px; border-radius:8px; display:inline-block;
+}
+
+/* ---------- Responsibility Matrix ---------- */
+.table-wrap{overflow-x:auto; border-radius:var(--radius); border:1px solid var(--line);}
+table.matrix{width:100%; border-collapse:collapse; font-size:13.5px; background:var(--paper);}
+table.matrix th{
+  text-align:left; padding:12px 16px; background:var(--green-soft); color:var(--green-deep);
+  font-size:11px; text-transform:uppercase; letter-spacing:.06em; font-weight:600;
+}
+table.matrix td{padding:12px 16px; border-top:1px solid var(--line); vertical-align:middle;}
+table.matrix tr.done td{opacity:.55;}
+table.matrix input[type=text]{
+  width:100%; border:none; background:transparent; font-family:var(--font-body); font-size:13px; color:var(--ink-soft);
+}
+table.matrix input[type=text]:focus-visible{outline:1px solid var(--blue-lake); border-radius:4px;}
+table.matrix input[type=checkbox]{width:17px; height:17px; accent-color:var(--green); cursor:pointer;}
+
+/* ---------- Missing Items ---------- */
+.missing-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px;}
+.missing-card{padding:16px;}
+.missing-card h4{font-size:14px; margin-bottom:10px; display:flex; align-items:center; gap:8px;}
+.missing-card .badge{font-size:9px; text-transform:uppercase; letter-spacing:.05em; padding:2px 8px; border-radius:999px; font-weight:700;}
+.badge.essential{background:color-mix(in srgb, var(--melon) 18%, transparent); color:var(--melon);}
+.badge.optional{background:var(--blue-soft); color:var(--blue-lake);}
+.missing-card input[type=text]{
+  width:100%; padding:7px 10px; border-radius:8px; border:1px solid var(--line); font-size:12.5px; margin:8px 0;
+  background:var(--cream); color:var(--ink); font-family:var(--font-body);
+}
+.assign-btn{
+  font-size:12px; font-weight:600; padding:6px 12px; border-radius:999px; border:none; cursor:pointer;
+  background:var(--green); color:#fff; transition:var(--transition);
+}
+.assign-btn:hover{background:var(--green-deep);}
+.missing-check{display:flex; align-items:center; gap:8px; margin-top:8px; font-size:12.5px; color:var(--ink-soft);}
+
+/* ---------- Progress ---------- */
+.progress-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px;}
+.progress-card{padding:18px;}
+.progress-top{display:flex; justify-content:space-between; font-size:13px; margin-bottom:8px;}
+.progress-top b{font-family:var(--font-mono);}
+.progress-track{height:8px; border-radius:999px; background:var(--green-soft); overflow:hidden;}
+.progress-fill{height:100%; border-radius:999px; background:linear-gradient(90deg,var(--green),var(--blue-lake)); transition:width 600ms ease;}
+
+/* ---------- Timeline ---------- */
+.timeline{position:relative; padding-left:28px; margin-top:8px;}
+.timeline::before{content:""; position:absolute; left:6px; top:6px; bottom:6px; width:2px; background:var(--line);}
+.tl-item{position:relative; padding:0 0 26px 20px;}
+.tl-item::before{
+  content:""; position:absolute; left:-28px; top:4px; width:14px; height:14px; border-radius:50%;
+  background:var(--paper); border:3px solid var(--green); z-index:1;
+}
+.tl-time{font-family:var(--font-mono); font-size:12px; color:var(--blue-lake); font-weight:600;}
+.tl-label{font-size:14.5px; font-weight:500; margin-top:2px;}
+
+/* ---------- Games ---------- */
+.game-list{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px;}
+.game-chip{
+  background:var(--paper); border:1px solid var(--line); padding:8px 14px; border-radius:999px; font-size:13px;
+  display:flex; align-items:center; gap:8px;
+}
+.game-chip .by{color:var(--ink-soft); font-size:11px;}
+.add-game-row{display:flex; gap:8px; max-width:420px;}
+.add-game-row input{flex:1; padding:9px 12px; border-radius:8px; border:1px solid var(--line); background:var(--cream); color:var(--ink); font-family:var(--font-body);}
+
+/* ---------- Photo ---------- */
+.photo-card{padding:28px; text-align:center;}
+.photo-reminder{
+  font-family:var(--font-display); font-size:20px; margin-top:12px; color:var(--green-deep);
+}
+.camera-row{display:flex; justify-content:center; gap:10px; margin-top:14px;}
+
+/* ---------- Stats ---------- */
+.stats-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:14px;}
+.stat-card{padding:20px; text-align:center;}
+.stat-card .n{font-family:var(--font-display); font-size:32px; font-weight:700; color:var(--green-deep);}
+.stat-card .l{font-size:12px; color:var(--ink-soft); margin-top:4px;}
+
+/* ---------- Export ---------- */
+.export-row{display:flex; gap:12px; flex-wrap:wrap;}
+.export-btn{
+  padding:11px 20px; border-radius:999px; border:1px solid var(--line); background:var(--paper);
+  font-family:var(--font-body); font-weight:600; font-size:13.5px; cursor:pointer; display:flex; align-items:center; gap:8px;
+  transition:var(--transition);
+}
+.export-btn:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+
+/* ---------- Toggle / collapsible section header ---------- */
+.collapse-toggle{
+  background:none; border:none; cursor:pointer; font-size:18px; color:var(--ink-soft);
+  width:32px; height:32px; display:flex; align-items:center; justify-content:center; border-radius:50%;
+  transition:var(--transition);
+}
+.collapse-toggle:hover{background:var(--green-soft);}
+.collapse-toggle.closed{transform:rotate(-90deg);}
+.section-body{transition:max-height var(--transition), opacity var(--transition); overflow:hidden;}
+.section-body.closed{max-height:0 !important; opacity:0; pointer-events:none;}
+
+footer{text-align:center; padding:50px 24px 20px; color:var(--ink-soft); font-size:12.5px; font-family:var(--font-mono);}
+
+/* ---------- Add-item row (missing) ---------- */
+.add-item-row{display:flex; gap:8px; margin-top:12px; max-width:400px;}
+.add-item-row input{flex:1; padding:7px 10px; border-radius:8px; border:1px solid var(--line); font-size:12.5px; background:var(--cream); color:var(--ink); font-family:var(--font-body);}
+
+/* ---------- Expenses ---------- */
+.expense-form{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+.expense-form input, .expense-form select{padding:9px 12px; border-radius:8px; border:1px solid var(--line); background:var(--cream); color:var(--ink); font-family:var(--font-body); font-size:13px;}
+.expense-form .exp-item{flex:2; min-width:120px;}
+.expense-form .exp-price{flex:1; min-width:90px;}
+.expense-form .exp-who{flex:1; min-width:110px;}
+.expense-table{width:100%; border-collapse:collapse; font-size:13.5px; background:var(--paper);}
+.expense-table th{text-align:left; padding:10px 14px; color:var(--green-deep); font-size:11px; text-transform:uppercase; letter-spacing:.06em; background:var(--green-soft); font-weight:600;}
+.expense-table td{padding:10px 14px; border-top:1px solid var(--line); vertical-align:middle;}
+.del-btn{background:none; border:none; cursor:pointer; color:var(--ink-soft); font-size:15px; padding:2px 6px; border-radius:4px; line-height:1;}
+.del-btn:hover{color:var(--melon); background:color-mix(in srgb, var(--melon) 12%, transparent);}
+.settlement-item{display:flex; align-items:center; gap:10px; padding:12px 16px; flex-wrap:wrap; background:var(--paper); border:1px solid var(--line); border-radius:var(--radius-sm); font-size:14px;}
+.settlement-item .s-amt{font-family:var(--font-mono); font-weight:700; color:var(--green-deep); margin-left:auto;}
+.balance-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:10px; margin-bottom:20px;}
+.balance-card .b-name{font-size:12px; color:var(--ink-soft); margin-bottom:4px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;}
+.balance-card .b-amt{font-family:var(--font-mono); font-size:16px; font-weight:700;}
+.balance-card .b-amt.pos{color:var(--green-deep);}
+.balance-card .b-amt.neg{color:var(--melon);}
+.balance-card .b-amt.zero{color:var(--ink-soft);}
+
+/* ---------- Hero date/time inputs ---------- */
+.hero-date-input{
+  background:var(--paper); border:1px solid var(--line); border-radius:8px;
+  font-family:var(--font-body); font-weight:600; font-size:14px; color:var(--ink);
+  padding:4px 8px; cursor:pointer;
+}
+.hero-date-input:focus{outline:2px solid var(--blue-lake); outline-offset:1px;}
+
+/* ---------- In-list delete button ---------- */
+.item-list li .del-btn{font-size:11px; padding:1px 4px; opacity:0; transition:opacity var(--transition); flex-shrink:0;}
+.item-list li:hover .del-btn, .item-list li .del-btn:focus{opacity:0.6;}
+.item-list li .del-btn:hover{opacity:1 !important;}
+
+@media print{
+  header.nav, .icon-btn, .assign-btn, .add-game-row, .export-row, .collapse-toggle{display:none !important;}
+  body{background:#fff; padding:0;}
+  .card{box-shadow:none; border:1px solid #ccc;}
+  .section{padding:20px 0;}
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <div class="brand">🧺 <span>Scarborough Bluffs Picnic</span></div>
+    <div class="global-search">
+      <input type="text" id="globalSearch" placeholder="Search people, items, jobs…" aria-label="Global search">
+    </div>
+    <nav class="nav-links" aria-label="Section navigation">
+      <a href="#overview">Overview</a>
+      <a href="#attendees">Attendees</a>
+      <a href="#transport">Transport</a>
+      <a href="#food">Food</a>
+      <a href="#drinks">Drinks</a>
+      <a href="#supplies">Supplies</a>
+      <a href="#allergies">Allergies</a>
+      <a href="#matrix">Jobs</a>
+      <a href="#missing">Missing</a>
+      <a href="#progress">Progress</a>
+      <a href="#timeline">Timeline</a>
+      <a href="#games">Games</a>
+      <a href="#photo">Photos</a>
+      <a href="#expenses">Expenses</a>
+      <a href="#export">Export</a>
+    </nav>
+    <span id="syncStatus" style="font-family:var(--font-mono); font-size:11px; color:var(--ink-soft); white-space:nowrap;" title="Shared with everyone using this link">⏳ connecting…</span>
+    <button class="icon-btn" id="themeToggle" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- 1. OVERVIEW -->
+  <section class="section" id="overview">
+    <div class="hero">
+      <div class="hero-grid">
+        <div class="card hero-main">
+          <div class="hero-eyebrow">Summer 2026 · Lake Ontario Shoreline</div>
+          <h1 class="hero-title">Scarborough<br>Bluffs Picnic</h1>
+          <div class="hero-date">
+            <label style="display:flex;align-items:center;gap:6px;">📅 <input type="date" id="eventDateInput" class="hero-date-input"></label>
+            <label style="display:flex;align-items:center;gap:6px;">🕓 <input type="time" id="eventTimeInput" class="hero-date-input"></label>
+            <span>👥 <b id="overviewCount">12</b> attendees</span>
+          </div>
+          <div class="countdown" id="countdown" aria-live="polite"></div>
+        </div>
+        <div class="hero-side">
+          <div class="card weather-card">
+            <div class="weather-top">
+              <div>
+                <div class="weather-temp">24°</div>
+                <div class="weather-desc">Partly sunny · light breeze</div>
+              </div>
+              <div class="weather-icon">⛅</div>
+            </div>
+            <div class="weather-note">Placeholder — check forecast closer to the day</div>
+          </div>
+          <div class="stat-mini-row">
+            <div class="card stat-mini"><div class="n" id="miniDrivers">4</div><div class="l">Drivers</div></div>
+            <div class="card stat-mini"><div class="n" id="miniFoodItems">7</div><div class="l">Food Items</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. ATTENDEES -->
+  <section class="section" id="attendees">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow">Who's coming</div>
+        <div class="section-title">Attendees</div>
+        <div class="section-sub">Stars mark people with responsibilities.</div>
+      </div>
+      <input type="text" id="attendeeSearch" placeholder="Search attendees…" style="padding:9px 14px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-family:var(--font-body);font-size:13px;color:var(--ink);min-width:180px;">
+    </div>
+    <div class="attendee-grid" id="attendeeGrid"></div>
+  </section>
+
+  <!-- 3. TRANSPORTATION -->
+  <section class="section" id="transport">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow">Getting there</div>
+        <div class="section-title">Transportation</div>
+        <div class="section-sub">Drag people between cars to reassign. Click a car label to rename it.</div>
+      </div>
+    </div>
+    <div class="cars-container" id="carsContainer"></div>
+  </section>
+
+  <!-- 4. FOOD -->
+  <section class="section" id="food">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow">Fuel for the day</div>
+        <div class="section-title">Food Assignment</div>
+      </div>
+    </div>
+    <div class="person-group-grid" id="foodGrid"></div>
+  </section>
+
+  <!-- 5. DRINKS -->
+  <section class="section" id="drinks">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow">Stay hydrated</div>
+        <div class="section-title">Drinks</div>
+      </div>
+    </div>
+    <div class="person-group-grid" id="drinksGrid"></div>
+  </section>
+
+  <!-- 6. SUPPLIES -->
+  <section class="section" id="supplies">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow">Gear check</div>
+        <div class="section-title">Supplies</div>
+      </div>
+    </div>
+    <div class="person-group-grid" id="suppliesGrid"></div>
+  </section>
+
+  <!-- 8. ALLERGIES -->
+  <section class="section" id="allergies">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow">Please read</div>
+        <div class="section-title">Allergies</div>
+      </div>
+    </div>
+    <div class="card allergy-card">
+      <div class="allergy-icon">⚠️</div>
+      <div>
+        <div style="font-weight:600; font-size:15px;">Angela is allergic to:</div>
+        <ul style="margin:8px 0 0 18px; font-size:13.5px; color:var(--ink-soft);">
+          <li>Melons</li><li>Lychee</li><li>Longan</li>
+        </ul>
+        <div class="allergy-warning">Keep melon separate from other fruit.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. RESPONSIBILITY MATRIX -->
+  <section class="section" id="matrix">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow">Who's doing what</div>
+        <div class="section-title">Responsibility Matrix</div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="matrix">
+        <thead><tr><th>Person</th><th>Responsibility</th><th>Done</th><th>Notes</th></tr></thead>
+        <tbody id="matrixBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 10. MISSING ITEMS -->
+  <section class="section" id="missing">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow">Still needed</div>
+        <div class="section-title">Missing Items</div>
+      </div>
+    </div>
+    <h4 style="margin-bottom:10px; font-size:13px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.06em;">Essential</h4>
+    <div class="missing-grid" id="missingEssential" style="margin-bottom:10px;"></div>
+    <div class="add-item-row" style="margin-bottom:24px;">
+      <input type="text" id="newEssentialInput" placeholder="Add essential item…">
+      <button class="assign-btn" id="addEssentialBtn">+ Add</button>
+    </div>
+    <h4 style="margin-bottom:10px; font-size:13px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.06em;">Optional</h4>
+    <div class="missing-grid" id="missingOptional" style="margin-bottom:10px;"></div>
+    <div class="add-item-row">
+      <input type="text" id="newOptionalInput" placeholder="Add optional item…">
+      <button class="assign-btn" id="addOptionalBtn">+ Add</button>
+    </div>
+  </section>
+
+  <!-- 11. PROGRESS -->
+  <section class="section" id="progress">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow">How ready are we</div>
+        <div class="section-title">Packing Progress</div>
+      </div>
+    </div>
+    <div class="progress-grid" id="progressGrid"></div>
+  </section>
+
+  <!-- 12. TIMELINE -->
+  <section class="section" id="timeline">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow">The day, minute by minute</div>
+        <div class="section-title">Timeline</div>
+      </div>
+    </div>
+    <div class="card" style="padding:24px 24px 6px;">
+      <div class="timeline" id="timelineList"></div>
+    </div>
+  </section>
+
+  <!-- 13. GAMES -->
+  <section class="section" id="games">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow">Entertainment</div>
+        <div class="section-title">Games</div>
+      </div>
+    </div>
+    <div class="game-list" id="gameList"></div>
+    <div class="add-game-row">
+      <input type="text" id="newGameInput" placeholder="Add a game (e.g. Frisbee)">
+      <button class="export-btn" id="addGameBtn">Add</button>
+    </div>
+  </section>
+
+  <!-- 14. PHOTO -->
+  <section class="section" id="photo">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow">Say cheese</div>
+        <div class="section-title">Photos</div>
+      </div>
+    </div>
+    <div class="card photo-card">
+      <div style="font-size:32px;">📷</div>
+      <div class="camera-row" id="cameraRow"></div>
+      <div class="photo-reminder">Remember to take a group photo before sunset!</div>
+    </div>
+  </section>
+
+  <!-- 15. EXPENSES -->
+  <section class="section" id="expenses">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow">Money stuff</div>
+        <div class="section-title">Expenses &amp; Settlement</div>
+        <div class="section-sub">Log receipts and see who owes who at the end.</div>
+      </div>
+    </div>
+    <div class="card" style="padding:20px; margin-bottom:20px;">
+      <div class="expense-form">
+        <input type="text" id="expItem" class="exp-item" placeholder="Item (e.g. Pizza)">
+        <input type="number" id="expPrice" class="exp-price" placeholder="Price ($)" step="0.01" min="0">
+        <select id="expPaidBy" class="exp-who"></select>
+        <button class="assign-btn" id="addExpenseBtn">+ Add</button>
+      </div>
+    </div>
+    <div class="table-wrap" id="expenseTableWrap" style="margin-bottom:24px;"></div>
+    <div class="section-eyebrow" style="margin-bottom:12px;">Balances</div>
+    <div class="balance-grid" id="balanceGrid"></div>
+    <div class="section-eyebrow" style="margin-bottom:12px;">Settlement</div>
+    <div style="display:flex; flex-direction:column; gap:8px;" id="settlementList"></div>
+  </section>
+
+  <!-- 17. EXPORT -->
+  <section class="section" id="export">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow">Take it with you</div>
+        <div class="section-title">Export</div>
+      </div>
+    </div>
+    <div class="export-row">
+      <button class="export-btn" id="printBtn">🖨️ Print Dashboard</button>
+      <button class="export-btn" id="pdfBtn">📄 Export as PDF</button>
+      <button class="export-btn" id="csvBtn">⬇️ Download Responsibilities CSV</button>
+    </div>
+  </section>
+
+  <footer>Made with 🌿 for a good day at the bluffs — shared live with everyone who has this link.</footer>
+</div>
+
+<script>
+(async function(){
+"use strict";
+
+/* ================= DATA ================= */
+const ATTENDEES = [
+  {name:"Winnie", tag:"Organizer · Driver · Fruit, camera, games", roles:["Fruit run","Camera","Board games","Drive (Jack & Daisy)"], transport:"driver"},
+  {name:"Jack", tag:"Winnie's brother · Riding with Winnie", roles:[], transport:"carpool"},
+  {name:"Edison", tag:"Drinks captain", roles:["All drinks"], transport:"carpool"},
+  {name:"KK", tag:"Speaker, cards, games", roles:["Speaker","Poker cards","Picnic mat","Board games"], transport:"carpool"},
+  {name:"Kevin", tag:"Food & supplies lead", roles:["Jollibee buckets","Fries","Pizza","Snacks","Plates","Cups","Gloves"], transport:"carpool"},
+  {name:"Angela", tag:"⚠️ Melon / lychee / longan allergy", roles:[], transport:"carpool"},
+  {name:"Yuki", tag:"Attendee", roles:[], transport:"carpool"},
+  {name:"Dylan", tag:"Driver · Picnic mat", roles:["Picnic mat"], transport:"driver"},
+  {name:"York", tag:"Driver · Camera", roles:["Camera"], transport:"driver"},
+  {name:"Connie", tag:"Attendee", roles:[], transport:"carpool"},
+  {name:"Olivia", tag:"Attendee", roles:[], transport:"carpool"},
+  {name:"Daisy 🐶", tag:"Very good dog", roles:[], transport:"carpool"}
+];
+
+const FOOD = {
+  "Winnie": ["Watermelon","Dragon fruit","Strawberries","Blueberries","Grapes","Cherries","Melon"],
+  "Kevin": ["1 Spicy Jollibee bucket","1 Mild Jollibee bucket","Fries","2 Large pizzas","Snacks"]
+};
+const DRINKS = { "Edison": ["Water","Soft drinks","Alcoholic beverages"] };
+const SUPPLIES = {
+  "Kevin": ["Plates","Cups","Disposable gloves"],
+  "KK": ["Bluetooth speaker","Poker cards","Picnic mat","Board games"],
+  "Dylan": ["Picnic mat"],
+  "Winnie": ["Camera","Board games"],
+  "York": ["Camera"]
+};
+
+const DAISY_ITEMS = ["Leash","Water bowl","Ball","Wipes","Food","Service dog vest","Dog bed","Dog shoes"];
+
+const MATRIX = [
+  {person:"Winnie", job:"Bring fruit + camera, drive Jack & Daisy", notes:""},
+  {person:"Kevin", job:"Order Jollibee, pizza, bring supplies", notes:"Confirm order time"},
+  {person:"Edison", job:"Bring all drinks", notes:""},
+  {person:"KK", job:"Bring speaker, cards, board games", notes:""},
+  {person:"Dylan", job:"Bring picnic mat, drive", notes:""},
+  {person:"York", job:"Bring camera, drive", notes:""},
+  {person:"Winnie", job:"Daisy's supplies & care", notes:"Winnie's dog"}
+];
+
+const MISSING_ESSENTIAL = ["Napkins","Cutlery","Garbage bags","Ice / Cooler"];
+const MISSING_OPTIONAL = ["Hand sanitizer","Condiments","Portable charger","Sunscreen","Bug spray","Tissues"];
+
+const DEFAULT_GAMES = [
+  {name:"Poker", by:"KK"},
+  {name:"Board games", by:"Winnie"},
+  {name:"Board games", by:"KK"}
+];
+
+const TIMELINE = [
+  {time:"3:00 PM", label:"Meet at Fairview Mall"},
+  {time:"—", label:"Drive to the Bluffs"},
+  {time:"4:00 PM", label:"Arrive"},
+  {time:"", label:"Set up mats"},
+  {time:"", label:"Food"},
+  {time:"", label:"Games"},
+  {time:"", label:"Sunset photos"},
+  {time:"", label:"Cleanup"},
+  {time:"", label:"Leave"}
+];
+
+/* ================= STORAGE HELPERS ================= */
+// LS = per-browser only. Used for things that should NOT be shared (theme preference).
+const LS = {
+  get(key, fallback){
+    try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+    catch(e){ return fallback; }
+  },
+  set(key, val){
+    try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){ console.warn("Storage failed", e); }
+  }
+};
+
+/* ---- Cloud = shared across everyone viewing this page, backed by Firebase. ----
+   Fill in YOUR_* values below with your Firebase project's config (see README). */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+const syncStatusEl = document.getElementById("syncStatus");
+let cloud = {};
+let docRef = null;
+let firebaseReady = false;
+
+try{
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  docRef = db.collection("picnic").doc("shared");
+  const snap = await docRef.get();
+  cloud = snap.exists ? snap.data() : {};
+  firebaseReady = true;
+  syncStatusEl.textContent = "☁️ Live";
+  syncStatusEl.title = "Connected — everyone with this link sees the same data";
+}catch(e){
+  console.warn("Firebase unavailable, running in local-only (per-browser) mode.", e);
+  syncStatusEl.textContent = "⚠️ Offline mode";
+  syncStatusEl.title = "Could not reach the shared database — changes will only be saved on this device";
+}
+
+const Cloud = {
+  get(key, fallback){ return cloud[key] !== undefined ? cloud[key] : fallback; },
+  set(key, val){
+    cloud[key] = val;
+    if(!firebaseReady || !docRef) return; // fall back silently to in-memory-only if offline
+    docRef.set({[key]: val}, {merge:true}).catch(e=>console.warn("Cloud save failed for", key, e));
+  }
+};
+
+function initials(name){
+  return name.replace(/[^\p{L}\s]/gu,"").trim().split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();
+}
+
+/* ================= THEME ================= */
+const themeToggle = document.getElementById("themeToggle");
+function applyTheme(t){
+  document.documentElement.setAttribute("data-theme", t);
+  themeToggle.textContent = t === "dark" ? "☀️" : "🌙";
+}
+applyTheme(LS.get("picnic_theme","light"));
+themeToggle.addEventListener("click", ()=>{
+  const cur = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  applyTheme(cur);
+  LS.set("picnic_theme", cur);
+});
+
+/* ================= COUNTDOWN ================= */
+let eventDateStr = Cloud.get("picnic_event_date","2026-07-12");
+let eventTimeStr = Cloud.get("picnic_event_time","16:00");
+function getEventDate(){ return new Date(eventDateStr+"T"+eventTimeStr+":00"); }
+const eventDateInput = document.getElementById("eventDateInput");
+const eventTimeInput = document.getElementById("eventTimeInput");
+eventDateInput.value = eventDateStr;
+eventTimeInput.value = eventTimeStr;
+eventDateInput.addEventListener("change",()=>{ eventDateStr=eventDateInput.value; Cloud.set("picnic_event_date",eventDateStr); });
+eventTimeInput.addEventListener("change",()=>{ eventTimeStr=eventTimeInput.value; Cloud.set("picnic_event_time",eventTimeStr); });
+function renderCountdown(){
+  const el = document.getElementById("countdown");
+  const now = new Date();
+  let diff = getEventDate() - now;
+  if(diff <= 0){
+    el.innerHTML = `<div class="count-box"><div class="count-num">🎉</div><div class="count-label">It's picnic day!</div></div>`;
+    return;
+  }
+  const d = Math.floor(diff/86400000); diff -= d*86400000;
+  const h = Math.floor(diff/3600000); diff -= h*3600000;
+  const m = Math.floor(diff/60000); diff -= m*60000;
+  const s = Math.floor(diff/1000);
+  const parts = [[d,"Days"],[h,"Hrs"],[m,"Min"],[s,"Sec"]];
+  el.innerHTML = parts.map(([n,l])=>`<div class="count-box"><div class="count-num">${n}</div><div class="count-label">${l}</div></div>`).join("");
+}
+renderCountdown();
+setInterval(renderCountdown, 1000);
+
+/* ================= ATTENDEES ================= */
+const attendeeGrid = document.getElementById("attendeeGrid");
+function renderAttendees(filter=""){
+  const f = filter.trim().toLowerCase();
+  attendeeGrid.innerHTML = ATTENDEES
+    .filter(a => a.name.toLowerCase().includes(f) || a.tag.toLowerCase().includes(f))
+    .map((a,i)=>`
+      <div class="card attendee-card ${a.roles.length ? 'has-role':''}">
+        <div class="avatar">${initials(a.name)}</div>
+        <div class="attendee-name">${a.name}</div>
+        <div class="attendee-tag">${a.tag.split('·')[0].trim()}</div>
+      </div>
+    `).join("") || `<div style="color:var(--ink-soft); font-size:13px;">No attendees match your search.</div>`;
+}
+renderAttendees();
+document.getElementById("attendeeSearch").addEventListener("input", e=>renderAttendees(e.target.value));
+document.getElementById("overviewCount").textContent = ATTENDEES.length;
+
+/* ================= TRANSPORT (drag-and-drop cars) ================= */
+const DEFAULT_CARS = [
+  {label:"Car 1 · Carpool (Fairview Mall)", passengers:["Kevin","KK","Edison","Angela","Yuki"]},
+  {label:"Car 2 · York", passengers:["York","Connie","Olivia"]},
+  {label:"Car 3 · Dylan", passengers:["Dylan"]},
+  {label:"Car 4 · Winnie", passengers:["Winnie","Jack","Daisy 🐶"]}
+];
+
+let carsData = Cloud.get("picnic_cars", DEFAULT_CARS);
+let dragPerson = null;
+let dragFromCar = null;
+
+function renderCars(){
+  const container = document.getElementById("carsContainer");
+  container.innerHTML = "";
+
+  carsData.forEach((car, carIdx)=>{
+    const card = document.createElement("div");
+    card.className = "car-card";
+
+    const header = document.createElement("div");
+    header.className = "car-header";
+
+    const labelInput = document.createElement("input");
+    labelInput.type = "text";
+    labelInput.className = "car-label-input";
+    labelInput.value = car.label;
+    labelInput.setAttribute("aria-label", "Car name");
+    labelInput.addEventListener("change", ()=>{
+      carsData[carIdx].label = labelInput.value;
+      Cloud.set("picnic_cars", carsData);
+    });
+
+    const removeBtn = document.createElement("button");
+    removeBtn.className = "remove-car-btn";
+    removeBtn.title = "Remove car";
+    removeBtn.textContent = "✕";
+    removeBtn.addEventListener("click", ()=>{
+      const bumped = carsData[carIdx].passengers;
+      carsData.splice(carIdx, 1);
+      if(bumped.length && carsData.length) carsData[0].passengers.push(...bumped);
+      Cloud.set("picnic_cars", carsData);
+      renderCars();
+    });
+
+    header.appendChild(labelInput);
+    header.appendChild(removeBtn);
+
+    const passEl = document.createElement("div");
+    passEl.className = "car-passengers" + (car.passengers.length === 0 ? " empty" : "");
+
+    car.passengers.forEach(person=>{
+      const chip = document.createElement("div");
+      chip.className = "person-chip";
+      chip.draggable = true;
+      chip.textContent = person;
+
+      chip.addEventListener("dragstart", e=>{
+        dragPerson = person;
+        dragFromCar = carIdx;
+        chip.classList.add("dragging");
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("text/plain", person);
+      });
+      chip.addEventListener("dragend", ()=>{
+        chip.classList.remove("dragging");
+        document.querySelectorAll(".car-card").forEach(c=>c.classList.remove("drag-over"));
+      });
+      passEl.appendChild(chip);
+    });
+
+    card.addEventListener("dragover", e=>{
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      card.classList.add("drag-over");
+    });
+    card.addEventListener("dragleave", e=>{
+      if(!card.contains(e.relatedTarget)) card.classList.remove("drag-over");
+    });
+    card.addEventListener("drop", e=>{
+      e.preventDefault();
+      card.classList.remove("drag-over");
+      if(dragPerson === null || dragFromCar === carIdx) return;
+      carsData[dragFromCar].passengers = carsData[dragFromCar].passengers.filter(p=>p!==dragPerson);
+      carsData[carIdx].passengers.push(dragPerson);
+      dragPerson = null;
+      dragFromCar = null;
+      Cloud.set("picnic_cars", carsData);
+      renderCars();
+    });
+
+    card.appendChild(header);
+    card.appendChild(passEl);
+    container.appendChild(card);
+  });
+
+  const addBtn = document.createElement("button");
+  addBtn.className = "add-car-card";
+  addBtn.innerHTML = `<span style="font-size:20px; line-height:1;">+</span> Add Car`;
+  addBtn.addEventListener("click", ()=>{
+    carsData.push({label:`Car ${carsData.length + 1}`, passengers:[]});
+    Cloud.set("picnic_cars", carsData);
+    renderCars();
+  });
+  container.appendChild(addBtn);
+
+  document.getElementById("miniDrivers").textContent = carsData.length;
+}
+
+renderCars();
+
+/* ================= GROUPED CARDS (food/drinks/supplies) ================= */
+const groupState = Cloud.get("picnic_groups", {});
+const itemListsStore = Cloud.get("picnic_item_lists", {});
+function getGroupItems(storeKey, person, defaults){
+  const k = storeKey+":"+person;
+  return itemListsStore[k] !== undefined ? itemListsStore[k] : [...defaults];
+}
+function saveGroupItems(storeKey, person, items){
+  itemListsStore[storeKey+":"+person] = items;
+  Cloud.set("picnic_item_lists", itemListsStore);
+}
+function renderGroup(containerId, data, storeKey){
+  const el = document.getElementById(containerId);
+  el.innerHTML = Object.entries(data).map(([person, defaults])=>{
+    const items = getGroupItems(storeKey, person, defaults);
+    const pid = person.replace(/\W/g,"_");
+    return `<div class="card person-group">
+      <div class="person-group-head">
+        <div class="avatar">${initials(person)}</div>
+        <div class="name">${person}</div>
+      </div>
+      <ul class="item-list">${items.map((item,i)=>{
+        const key = storeKey+":"+person+":"+item;
+        const checked = !!groupState[key];
+        const cbId = "gi_"+storeKey+"_"+pid+"_"+i;
+        return `<li class="${checked?'checked':''}"><input type="checkbox" id="${cbId}" data-key="${key}" ${checked?'checked':''}><label for="${cbId}">${item}</label><button class="del-btn" data-person="${person}" data-store="${storeKey}" data-idx="${i}" title="Remove">✕</button></li>`;
+      }).join("")}</ul>
+      <div class="add-item-row" style="margin-top:10px;">
+        <input type="text" class="new-group-input" placeholder="Add item…" data-person="${person}" data-store="${storeKey}">
+        <button class="assign-btn new-group-btn" data-person="${person}" data-store="${storeKey}">+ Add</button>
+      </div>
+    </div>`;
+  }).join("");
+
+  el.querySelectorAll("input[type=checkbox]").forEach(cb=>{
+    cb.addEventListener("change",()=>{
+      groupState[cb.dataset.key] = cb.checked;
+      Cloud.set("picnic_groups", groupState);
+      cb.closest("li").classList.toggle("checked", cb.checked);
+    });
+  });
+  el.querySelectorAll(".del-btn").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const {person, store, idx} = btn.dataset;
+      const items = getGroupItems(store, person, data[person]||[]);
+      items.splice(parseInt(idx),1);
+      saveGroupItems(store, person, items);
+      renderGroup(containerId, data, storeKey);
+    });
+  });
+  el.querySelectorAll(".new-group-btn").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const {person, store} = btn.dataset;
+      const inp = el.querySelector(`.new-group-input[data-person="${CSS.escape(person)}"]`);
+      const val = inp ? inp.value.trim() : "";
+      if(!val) return;
+      const items = getGroupItems(store, person, data[person]||[]);
+      items.push(val);
+      saveGroupItems(store, person, items);
+      inp.value = "";
+      renderGroup(containerId, data, storeKey);
+    });
+  });
+  el.querySelectorAll(".new-group-input").forEach(inp=>{
+    inp.addEventListener("keydown",e=>{
+      if(e.key==="Enter"){
+        const btn = el.querySelector(`.new-group-btn[data-person="${CSS.escape(inp.dataset.person)}"]`);
+        if(btn) btn.click();
+      }
+    });
+  });
+}
+renderGroup("foodGrid", FOOD, "food");
+renderGroup("drinksGrid", DRINKS, "drinks");
+renderGroup("suppliesGrid", SUPPLIES, "supplies");
+{
+  const daisyCard = document.createElement("div");
+  daisyCard.className = "card person-group";
+  daisyCard.innerHTML = `<div class="person-group-head"><div class="avatar" style="background:linear-gradient(135deg,var(--green),var(--sun));">WI</div><div class="name">Winnie · Daisy 🐶</div></div><ul class="item-list" id="daisyList"></ul><div class="add-item-row" style="margin-top:10px;"><input type="text" id="newDaisyInput" placeholder="Add item…"><button class="assign-btn" id="addDaisyBtn">+ Add</button></div>`;
+  document.getElementById("suppliesGrid").appendChild(daisyCard);
+}
+document.getElementById("miniFoodItems").textContent = Object.values(FOOD).flat().length;
+
+/* ================= DAISY CHECKLIST ================= */
+const daisyState = Cloud.get("picnic_daisy", {});
+let daisyItems = Cloud.get("picnic_daisy_items", [...DAISY_ITEMS]);
+function renderDaisy(){
+  const el = document.getElementById("daisyList");
+  el.innerHTML = daisyItems.map((item,i)=>{
+    const checked = !!daisyState[item];
+    return `<li class="${checked?'checked':''}"><input type="checkbox" id="daisy${i}" data-item="${item}" ${checked?'checked':''}><label for="daisy${i}">${item}</label><button class="del-btn" data-idx="${i}" title="Remove">✕</button></li>`;
+  }).join("");
+  el.querySelectorAll("input[type=checkbox]").forEach(cb=>{
+    cb.addEventListener("change",()=>{
+      daisyState[cb.dataset.item] = cb.checked;
+      Cloud.set("picnic_daisy", daisyState);
+      cb.closest("li").classList.toggle("checked", cb.checked);
+      renderProgress();
+    });
+  });
+  el.querySelectorAll(".del-btn").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      daisyItems.splice(parseInt(btn.dataset.idx),1);
+      Cloud.set("picnic_daisy_items", daisyItems);
+      renderDaisy(); renderProgress();
+    });
+  });
+}
+renderDaisy();
+document.getElementById("addDaisyBtn").addEventListener("click",()=>{
+  const inp = document.getElementById("newDaisyInput");
+  const val = inp.value.trim();
+  if(!val) return;
+  daisyItems.push(val);
+  Cloud.set("picnic_daisy_items", daisyItems);
+  inp.value = "";
+  renderDaisy(); renderProgress();
+});
+document.getElementById("newDaisyInput").addEventListener("keydown",e=>{ if(e.key==="Enter") document.getElementById("addDaisyBtn").click(); });
+
+/* ================= RESPONSIBILITY MATRIX ================= */
+const matrixState = Cloud.get("picnic_matrix", {});
+function renderMatrix(){
+  const body = document.getElementById("matrixBody");
+  body.innerHTML = MATRIX.map((row,i)=>{
+    const state = matrixState[i] || {done:false, notes:row.notes};
+    return `<tr class="${state.done?'done':''}">
+      <td><b>${row.person}</b></td>
+      <td>${row.job}</td>
+      <td><input type="checkbox" data-i="${i}" class="matrixDone" ${state.done?'checked':''} aria-label="Mark ${row.job} done"></td>
+      <td><input type="text" data-i="${i}" class="matrixNotes" value="${state.notes.replace(/"/g,'&quot;')}" placeholder="Add a note…"></td>
+    </tr>`;
+  }).join("");
+  body.querySelectorAll(".matrixDone").forEach(cb=>{
+    cb.addEventListener("change", ()=>{
+      const i = cb.dataset.i;
+      matrixState[i] = matrixState[i] || {done:false, notes:MATRIX[i].notes};
+      matrixState[i].done = cb.checked;
+      Cloud.set("picnic_matrix", matrixState);
+      renderMatrix(); renderProgress();
+    });
+  });
+  body.querySelectorAll(".matrixNotes").forEach(inp=>{
+    inp.addEventListener("change", ()=>{
+      const i = inp.dataset.i;
+      matrixState[i] = matrixState[i] || {done:false, notes:""};
+      matrixState[i].notes = inp.value;
+      Cloud.set("picnic_matrix", matrixState);
+    });
+  });
+}
+renderMatrix();
+
+/* ================= MISSING ITEMS ================= */
+const missingState = Cloud.get("picnic_missing", {});
+let userMissingEssential = Cloud.get("picnic_user_essential", []);
+let userMissingOptional = Cloud.get("picnic_user_optional", []);
+function allEssential(){ return [...MISSING_ESSENTIAL, ...userMissingEssential]; }
+function allOptional(){ return [...MISSING_OPTIONAL, ...userMissingOptional]; }
+
+function renderMissing(containerId, items, type, userItems, storeKey){
+  const el = document.getElementById(containerId);
+  el.innerHTML = items.map(item=>{
+    const isUser = userItems && userItems.includes(item);
+    const s = missingState[item] || {assigned:"", done:false};
+    const esc = item.replace(/"/g,'&quot;');
+    return `<div class="card missing-card">
+      <h4 style="justify-content:space-between;">
+        <span style="display:flex;align-items:center;gap:8px;"><span class="badge ${type}">${type}</span> ${item}</span>
+        ${isUser ? `<button class="del-btn" data-item="${esc}" data-store="${storeKey}" title="Remove">✕</button>` : ""}
+      </h4>
+      <input type="text" placeholder="Assigned to…" data-item="${esc}" class="missingAssign" value="${s.assigned.replace(/"/g,'&quot;')}">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <button class="assign-btn" data-item="${esc}">Assign</button>
+        <label class="missing-check"><input type="checkbox" class="missingDone" data-item="${esc}" ${s.done?'checked':''}> Completed</label>
+      </div>
+    </div>`;
+  }).join("");
+
+  el.querySelectorAll(".del-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const item = btn.dataset.item;
+      if(btn.dataset.store === "essential"){
+        userMissingEssential = userMissingEssential.filter(i=>i!==item);
+        Cloud.set("picnic_user_essential", userMissingEssential);
+        renderMissing("missingEssential", allEssential(), "essential", userMissingEssential, "essential");
+      } else {
+        userMissingOptional = userMissingOptional.filter(i=>i!==item);
+        Cloud.set("picnic_user_optional", userMissingOptional);
+        renderMissing("missingOptional", allOptional(), "optional", userMissingOptional, "optional");
+      }
+      renderProgress();
+    });
+  });
+  el.querySelectorAll(".assign-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const item = btn.dataset.item;
+      const input = el.querySelector(`.missingAssign[data-item="${CSS.escape(item)}"]`);
+      missingState[item] = missingState[item] || {assigned:"", done:false};
+      missingState[item].assigned = input.value.trim();
+      Cloud.set("picnic_missing", missingState);
+    });
+  });
+  el.querySelectorAll(".missingDone").forEach(cb=>{
+    cb.addEventListener("change", ()=>{
+      const item = cb.dataset.item;
+      missingState[item] = missingState[item] || {assigned:"", done:false};
+      missingState[item].done = cb.checked;
+      Cloud.set("picnic_missing", missingState);
+      renderProgress();
+    });
+  });
+}
+renderMissing("missingEssential", allEssential(), "essential", userMissingEssential, "essential");
+renderMissing("missingOptional", allOptional(), "optional", userMissingOptional, "optional");
+
+document.getElementById("addEssentialBtn").addEventListener("click", ()=>{
+  const inp = document.getElementById("newEssentialInput");
+  const val = inp.value.trim();
+  if(!val) return;
+  userMissingEssential.push(val);
+  Cloud.set("picnic_user_essential", userMissingEssential);
+  inp.value = "";
+  renderMissing("missingEssential", allEssential(), "essential", userMissingEssential, "essential");
+  renderProgress();
+});
+document.getElementById("newEssentialInput").addEventListener("keydown", e=>{ if(e.key==="Enter") document.getElementById("addEssentialBtn").click(); });
+
+document.getElementById("addOptionalBtn").addEventListener("click", ()=>{
+  const inp = document.getElementById("newOptionalInput");
+  const val = inp.value.trim();
+  if(!val) return;
+  userMissingOptional.push(val);
+  Cloud.set("picnic_user_optional", userMissingOptional);
+  inp.value = "";
+  renderMissing("missingOptional", allOptional(), "optional", userMissingOptional, "optional");
+  renderProgress();
+});
+document.getElementById("newOptionalInput").addEventListener("keydown", e=>{ if(e.key==="Enter") document.getElementById("addOptionalBtn").click(); });
+
+/* ================= GAMES ================= */
+let games = Cloud.get("picnic_games", DEFAULT_GAMES);
+function renderGames(){
+  const list = document.getElementById("gameList");
+  list.innerHTML = games.map((g,i)=>`<div class="game-chip">🎲 ${g.name} <span class="by">— ${g.by}</span><button class="del-btn" data-i="${i}" title="Remove" style="margin-left:6px; font-size:12px;">✕</button></div>`).join("");
+  list.querySelectorAll(".del-btn").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      games.splice(parseInt(btn.dataset.i),1);
+      Cloud.set("picnic_games",games);
+      renderGames();
+    });
+  });
+}
+renderGames();
+document.getElementById("addGameBtn").addEventListener("click", addGame);
+document.getElementById("newGameInput").addEventListener("keydown", e=>{ if(e.key==="Enter") addGame(); });
+function addGame(){
+  const input = document.getElementById("newGameInput");
+  const val = input.value.trim();
+  if(!val) return;
+  games.push({name:val, by:"You"});
+  Cloud.set("picnic_games", games);
+  input.value = "";
+  renderGames();
+}
+
+/* ================= TIMELINE ================= */
+document.getElementById("timelineList").innerHTML = TIMELINE.map(t=>`
+  <div class="tl-item">
+    ${t.time ? `<div class="tl-time">${t.time}</div>` : ""}
+    <div class="tl-label">${t.label}</div>
+  </div>
+`).join("");
+
+/* ================= PHOTO ================= */
+document.getElementById("cameraRow").innerHTML = ["Winnie","York"].map(n=>`<div class="chip">📷 ${n}</div>`).join("");
+
+/* ================= PROGRESS ================= */
+function renderProgress(){
+  const ae = allEssential(), ao = allOptional();
+  const essentialDone = ae.filter(i=> (missingState[i]||{}).done).length;
+  const optionalDone = ao.filter(i=> (missingState[i]||{}).done).length;
+  const daisyDone = daisyItems.filter(i=>daisyState[i]).length;
+  const matrixDone = MATRIX.filter((r,i)=> (matrixState[i]||{}).done).length;
+
+  const categories = [
+    {label:"Food", done: Object.values(FOOD).flat().length, total: Object.values(FOOD).flat().length, override:100},
+    {label:"Drinks", done: Object.values(DRINKS).flat().length, total: Object.values(DRINKS).flat().length, override:100},
+    {label:"Supplies", done: essentialDone + optionalDone, total: ae.length + ao.length},
+    {label:"Activities", done: games.length, total: Math.max(games.length,3), override: Math.round((matrixDone/MATRIX.length)*100)},
+    {label:"Dog Supplies", done: daisyDone, total: daisyItems.length}
+  ];
+
+  const grid = document.getElementById("progressGrid");
+  grid.innerHTML = categories.map(c=>{
+    let pct;
+    if(c.label==="Food" || c.label==="Drinks") pct = 100;
+    else if(c.label==="Activities") pct = c.override;
+    else pct = c.total ? Math.round((c.done/c.total)*100) : 0;
+    return `<div class="card progress-card">
+      <div class="progress-top"><span>${c.label}</span><b>${pct}%</b></div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join("");
+}
+renderProgress();
+
+/* ================= EXPENSES ================= */
+const EXPENSE_PEOPLE = ATTENDEES.filter(a=>!a.name.includes("Daisy")).map(a=>a.name);
+let expenses = Cloud.get("picnic_expenses", []);
+
+const expPaidByEl = document.getElementById("expPaidBy");
+EXPENSE_PEOPLE.forEach(p=>{ const o = document.createElement("option"); o.value=p; o.textContent=p; expPaidByEl.appendChild(o); });
+
+function settle(exps, people){
+  const paid = {};
+  people.forEach(p=>paid[p]=0);
+  exps.forEach(e=>{ if(paid[e.paidBy]!==undefined) paid[e.paidBy]+=parseFloat(e.price); });
+  const total = exps.reduce((s,e)=>s+parseFloat(e.price),0);
+  const share = total/people.length;
+  const balance = {};
+  people.forEach(p=>balance[p]=parseFloat((paid[p]-share).toFixed(2)));
+  const pos = people.filter(p=>balance[p]>0.005).map(p=>({name:p,amt:balance[p]})).sort((a,b)=>b.amt-a.amt);
+  const neg = people.filter(p=>balance[p]<-0.005).map(p=>({name:p,amt:-balance[p]})).sort((a,b)=>b.amt-a.amt);
+  const txns = [];
+  let ci=0,di=0;
+  while(ci<pos.length&&di<neg.length){
+    const amt=Math.min(pos[ci].amt,neg[di].amt);
+    if(amt>0.005) txns.push({from:neg[di].name,to:pos[ci].name,amt:amt.toFixed(2)});
+    pos[ci].amt-=amt; neg[di].amt-=amt;
+    if(pos[ci].amt<0.005) ci++;
+    if(neg[di].amt<0.005) di++;
+  }
+  return {paid,share,balance,txns};
+}
+
+function renderExpenses(){
+  const tableWrap = document.getElementById("expenseTableWrap");
+  const balanceGrid = document.getElementById("balanceGrid");
+  const settlementList = document.getElementById("settlementList");
+
+  if(expenses.length===0){
+    tableWrap.innerHTML=`<div style="padding:16px 0; color:var(--ink-soft); font-size:13px;">No expenses yet. Add your first receipt above.</div>`;
+    balanceGrid.innerHTML="";
+    settlementList.innerHTML=`<div style="color:var(--ink-soft); font-size:13px;">Add expenses to see the settlement.</div>`;
+    return;
+  }
+
+  const total = expenses.reduce((s,e)=>s+parseFloat(e.price),0);
+  tableWrap.innerHTML=`<table class="expense-table">
+    <thead><tr><th>Item</th><th>Price</th><th>Paid by</th><th></th></tr></thead>
+    <tbody>
+    ${expenses.map((e,i)=>`<tr>
+      <td>${e.item}</td>
+      <td>$${parseFloat(e.price).toFixed(2)}</td>
+      <td>${e.paidBy}</td>
+      <td><button class="del-btn" data-i="${i}" title="Remove">✕</button></td>
+    </tr>`).join("")}
+    <tr style="font-weight:600; background:var(--green-soft);">
+      <td>Total</td>
+      <td>$${total.toFixed(2)}</td>
+      <td colspan="2" style="color:var(--ink-soft); font-size:12px; font-weight:400;">÷ ${EXPENSE_PEOPLE.length} people = $${(total/EXPENSE_PEOPLE.length).toFixed(2)} each</td>
+    </tr>
+    </tbody>
+  </table>`;
+
+  tableWrap.querySelectorAll(".del-btn").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      expenses.splice(parseInt(btn.dataset.i),1);
+      Cloud.set("picnic_expenses",expenses);
+      renderExpenses();
+    });
+  });
+
+  const {balance,txns} = settle(expenses,EXPENSE_PEOPLE);
+
+  balanceGrid.innerHTML=EXPENSE_PEOPLE.map(p=>{
+    const b=balance[p]||0;
+    const cls=b>0.005?"pos":b<-0.005?"neg":"zero";
+    const sign=b>0.005?"+":"";
+    const label=b>0.005?"gets back":b<-0.005?"owes":"settled";
+    return `<div class="card balance-card">
+      <div class="b-name">${p}</div>
+      <div class="b-amt ${cls}">${sign}$${Math.abs(b).toFixed(2)}</div>
+      <div style="font-size:10px;color:var(--ink-soft);margin-top:2px;">${label}</div>
+    </div>`;
+  }).join("");
+
+  settlementList.innerHTML=txns.length===0
+    ? `<div style="color:var(--green-deep);font-size:14px;font-weight:600;">Everyone is settled ✓</div>`
+    : txns.map(t=>`<div class="settlement-item">
+        <span style="font-weight:600;">${t.from}</span>
+        <span style="color:var(--ink-soft);font-size:12px;">pays</span>
+        <span style="font-weight:600;">${t.to}</span>
+        <span class="s-amt">$${t.amt}</span>
+      </div>`).join("");
+}
+
+document.getElementById("addExpenseBtn").addEventListener("click",()=>{
+  const item=document.getElementById("expItem").value.trim();
+  const price=parseFloat(document.getElementById("expPrice").value);
+  const paidBy=document.getElementById("expPaidBy").value;
+  if(!item||isNaN(price)||price<=0) return;
+  expenses.push({item,price,paidBy});
+  Cloud.set("picnic_expenses",expenses);
+  document.getElementById("expItem").value="";
+  document.getElementById("expPrice").value="";
+  renderExpenses();
+});
+["expItem","expPrice"].forEach(id=>{
+  document.getElementById(id).addEventListener("keydown",e=>{ if(e.key==="Enter") document.getElementById("addExpenseBtn").click(); });
+});
+
+renderExpenses();
+
+/* ================= GLOBAL SEARCH ================= */
+const searchIndex = [];
+ATTENDEES.forEach(a=>searchIndex.push({type:"Person", label:a.name, target:"attendees"}));
+Object.entries(FOOD).forEach(([p,items])=>items.forEach(i=>searchIndex.push({type:"Food", label:`${i} (${p})`, target:"food"})));
+Object.entries(DRINKS).forEach(([p,items])=>items.forEach(i=>searchIndex.push({type:"Drink", label:`${i} (${p})`, target:"drinks"})));
+Object.entries(SUPPLIES).forEach(([p,items])=>items.forEach(i=>searchIndex.push({type:"Supply", label:`${i} (${p})`, target:"supplies"})));
+MATRIX.forEach(r=>searchIndex.push({type:"Job", label:`${r.job} — ${r.person}`, target:"matrix"}));
+[...MISSING_ESSENTIAL,...MISSING_OPTIONAL].forEach(i=>searchIndex.push({type:"Missing", label:i, target:"missing"}));
+
+const globalSearch = document.getElementById("globalSearch");
+let searchResultsBox = null;
+globalSearch.addEventListener("input", ()=>{
+  const q = globalSearch.value.trim().toLowerCase();
+  if(searchResultsBox){ searchResultsBox.remove(); searchResultsBox = null; }
+  if(!q) return;
+  const matches = searchIndex.filter(s=>s.label.toLowerCase().includes(q)).slice(0,8);
+  searchResultsBox = document.createElement("div");
+  searchResultsBox.style.cssText = "position:absolute; top:110%; left:0; right:0; background:var(--paper); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow-lg); max-height:280px; overflow:auto; z-index:200;";
+  searchResultsBox.innerHTML = matches.length ? matches.map(m=>`
+    <div style="padding:10px 14px; font-size:13px; cursor:pointer; border-bottom:1px solid var(--line);" data-target="${m.target}">
+      <span style="color:var(--ink-soft); font-size:11px; text-transform:uppercase; margin-right:6px;">${m.type}</span>${m.label}
+    </div>
+  `).join("") : `<div style="padding:10px 14px; font-size:13px; color:var(--ink-soft);">No matches</div>`;
+  searchResultsBox.querySelectorAll("[data-target]").forEach(row=>{
+    row.addEventListener("click", ()=>{
+      document.getElementById(row.dataset.target).scrollIntoView({behavior:"smooth", block:"start"});
+      globalSearch.value = ""; searchResultsBox.remove(); searchResultsBox = null;
+    });
+  });
+  globalSearch.parentElement.appendChild(searchResultsBox);
+});
+document.addEventListener("click", e=>{
+  if(searchResultsBox && !globalSearch.parentElement.contains(e.target)){ searchResultsBox.remove(); searchResultsBox = null; }
+});
+
+/* ================= EXPORT ================= */
+document.getElementById("printBtn").addEventListener("click", ()=>window.print());
+document.getElementById("pdfBtn").addEventListener("click", ()=>{
+  alert("Use your browser's Print dialog and choose \"Save as PDF\" as the destination.");
+  window.print();
+});
+document.getElementById("csvBtn").addEventListener("click", ()=>{
+  let csv = "Person,Responsibility,Done,Notes\n";
+  MATRIX.forEach((row,i)=>{
+    const s = matrixState[i] || {done:false, notes:row.notes};
+    const esc = v => `"${String(v).replace(/"/g,'""')}"`;
+    csv += [esc(row.person), esc(row.job), s.done?"Yes":"No", esc(s.notes)].join(",") + "\n";
+  });
+  const blob = new Blob([csv], {type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "picnic-responsibilities.csv";
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+});
+
+/* ================= LIVE SYNC ================= */
+// When someone else changes the shared doc, pull their changes in and re-render.
+// hasPendingWrites filters out the echo of our own writes so we don't fight local typing.
+if(firebaseReady && docRef){
+  docRef.onSnapshot({includeMetadataChanges:true}, (snap)=>{
+    if(snap.metadata.hasPendingWrites || !snap.exists) return;
+    cloud = snap.data();
+
+    eventDateStr = Cloud.get("picnic_event_date", eventDateStr);
+    eventTimeStr = Cloud.get("picnic_event_time", eventTimeStr);
+    eventDateInput.value = eventDateStr;
+    eventTimeInput.value = eventTimeStr;
+
+    carsData = Cloud.get("picnic_cars", carsData);
+    renderCars();
+
+    Object.keys(groupState).forEach(k=>delete groupState[k]);
+    Object.assign(groupState, Cloud.get("picnic_groups", {}));
+    Object.keys(itemListsStore).forEach(k=>delete itemListsStore[k]);
+    Object.assign(itemListsStore, Cloud.get("picnic_item_lists", {}));
+    renderGroup("foodGrid", FOOD, "food");
+    renderGroup("drinksGrid", DRINKS, "drinks");
+    renderGroup("suppliesGrid", SUPPLIES, "supplies");
+
+    Object.keys(daisyState).forEach(k=>delete daisyState[k]);
+    Object.assign(daisyState, Cloud.get("picnic_daisy", {}));
+    daisyItems = Cloud.get("picnic_daisy_items", daisyItems);
+    renderDaisy();
+
+    Object.keys(matrixState).forEach(k=>delete matrixState[k]);
+    Object.assign(matrixState, Cloud.get("picnic_matrix", {}));
+    renderMatrix();
+
+    Object.keys(missingState).forEach(k=>delete missingState[k]);
+    Object.assign(missingState, Cloud.get("picnic_missing", {}));
+    userMissingEssential = Cloud.get("picnic_user_essential", userMissingEssential);
+    userMissingOptional = Cloud.get("picnic_user_optional", userMissingOptional);
+    renderMissing("missingEssential", allEssential(), "essential", userMissingEssential, "essential");
+    renderMissing("missingOptional", allOptional(), "optional", userMissingOptional, "optional");
+
+    games = Cloud.get("picnic_games", games);
+    renderGames();
+
+    expenses = Cloud.get("picnic_expenses", expenses);
+    renderExpenses();
+
+    renderProgress();
+    renderCountdown();
+  }, (err)=>{
+    console.warn("Live sync listener error", err);
+    syncStatusEl.textContent = "⚠️ Sync interrupted";
+  });
+}
+
+})();
+</script>
+</body>
+</html>
